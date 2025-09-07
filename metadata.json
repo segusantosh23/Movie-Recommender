@@ -1,0 +1,5 @@
+{
+  "name": "Movie Recommender",
+  "description": "A modern movie recommendation web application that provides personalized suggestions using AI. Browse trending movies, manage your watchlist and liked movies, and get unique recommendations from Gemini.",
+  "requestFramePermissions": []
+}
