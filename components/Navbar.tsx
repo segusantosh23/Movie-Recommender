@@ -1,23 +1,41 @@
+
 import React, { useState, useContext, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
+import { ThemeContext } from '../contexts/ThemeContext';
 import Logo from './Logo';
+import { Movie } from '../types';
+import { searchMovies } from '../services/tmdbService';
 
 const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<Movie[]>([]);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isThemeToggleClicked, setIsThemeToggleClicked] = useState(false);
+  
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const mobileSearchContainerRef = useRef<HTMLDivElement>(null);
 
-  const navigate = useNavigate();
+  const navigate = ReactRouterDOM.useNavigate();
   const authContext = useContext(AuthContext);
-  const location = useLocation();
+  const themeContext = useContext(ThemeContext);
+  const location = ReactRouterDOM.useLocation();
   const { pathname } = location;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
         setIsProfileMenuOpen(false);
+      }
+      // Close suggestions if clicked outside of both desktop and mobile search containers
+      const isOutsideDesktop = searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node);
+      const isOutsideMobile = mobileSearchContainerRef.current && !mobileSearchContainerRef.current.contains(event.target as Node);
+      
+      if (isOutsideDesktop && (!mobileSearchContainerRef.current || isOutsideMobile)) {
+         setSuggestions([]);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -26,15 +44,51 @@ const Navbar: React.FC = () => {
     };
   }, [profileMenuRef]);
 
+  useEffect(() => {
+    if (searchQuery.trim() === '') {
+      setSuggestions([]);
+      return;
+    }
+
+    const delayDebounceFn = setTimeout(() => {
+      const fetchSuggestions = async () => {
+        try {
+          const response = await searchMovies(searchQuery);
+          setSuggestions(response.results.slice(0, 5));
+        } catch (error) {
+          console.error("Failed to fetch search suggestions:", error);
+          setSuggestions([]);
+        }
+      };
+      fetchSuggestions();
+    }, 300); // 300ms debounce delay
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/search/${searchQuery.trim()}`);
       setSearchQuery('');
+      setSuggestions([]);
       setIsMobileMenuOpen(false); // Close menu on search
     }
   };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setSuggestions([]);
+  };
   
+  const handleSuggestionClick = (movieId: number) => {
+    navigate(`/movie/${movieId}`);
+    setSearchQuery('');
+    setSuggestions([]);
+    setIsMobileMenuOpen(false);
+  };
+
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   const handleLogout = () => {
@@ -42,6 +96,14 @@ const Navbar: React.FC = () => {
     navigate('/');
     setIsProfileMenuOpen(false);
     closeMobileMenu();
+  };
+
+  const handleThemeToggle = () => {
+    if (themeContext) {
+      themeContext.toggleTheme();
+      setIsThemeToggleClicked(true);
+      setTimeout(() => setIsThemeToggleClicked(false), 500); // Highlight duration
+    }
   };
 
   const navLinks = [
@@ -53,71 +115,134 @@ const Navbar: React.FC = () => {
   ];
 
   const getLinkClassName = (path: string, baseClasses: string) => {
-    const activeClasses = 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold shadow-lg';
-    const inactiveClasses = 'text-gray-300 hover:bg-gray-700 hover:text-white';
+    const activeClasses = 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-bold';
+    const inactiveClasses = 'text-slate-500 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white';
     return `${baseClasses} ${pathname === path ? activeClasses : inactiveClasses}`;
   };
 
+  const renderSuggestions = () => (
+    suggestions.length > 0 && (
+      <div className="absolute top-full mt-2 w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-20 overflow-hidden">
+        <ul>
+          {suggestions.map(movie => (
+            <li 
+              key={movie.id} 
+              onClick={() => handleSuggestionClick(movie.id)}
+              className="px-4 py-3 flex items-center space-x-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            >
+              <img 
+                src={movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : `https://picsum.photos/50/75?random=${movie.id}`} 
+                alt={movie.title} 
+                className="w-12 aspect-[2/3] object-cover rounded flex-shrink-0 bg-slate-200 dark:bg-slate-700"
+              />
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-white line-clamp-2">{movie.title || movie.name}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{movie.release_date?.substring(0, 4)}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  );
+
   return (
-    <nav className="bg-gray-800/50 backdrop-blur-sm sticky top-0 z-50">
+    <nav className="bg-white/80 dark:bg-black/60 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200/50 dark:border-slate-800/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left side: Logo and Desktop Nav */}
           <div className="flex items-center space-x-8">
             <Logo onClick={closeMobileMenu} />
-            <div className="hidden lg:flex items-baseline space-x-4">
+            <div className="hidden lg:flex items-center gap-2">
               {navLinks.map((link) => (
-                <Link key={link.to} to={link.to} className={getLinkClassName(link.to, 'px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 whitespace-nowrap')}>
+                <ReactRouterDOM.Link key={link.to} to={link.to} className={getLinkClassName(link.to, 'h-10 px-4 flex items-center rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap')}>
                   {link.label}
-                </Link>
+                </ReactRouterDOM.Link>
               ))}
             </div>
           </div>
 
           {/* Right side: Search, Auth, and Mobile Menu Button */}
-          <div className="flex items-center space-x-4">
-            <form onSubmit={handleSearch} className="hidden sm:block relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search movies..."
-                className="bg-gray-700 text-white placeholder-gray-400 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:w-80 lg:w-[36rem] transition-all duration-300"
-              />
-              <button type="submit" className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-white" aria-label="Search">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+          <div className="flex items-center gap-3">
+            <div ref={searchContainerRef} className="hidden sm:block relative sm:w-80 lg:w-[36rem]">
+              <form onSubmit={handleSearch} className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for a movie..."
+                  className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent w-full transition-all duration-300 h-10"
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button 
+                    type="button" 
+                    onClick={handleClearSearch}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" 
+                    aria-label="Clear search"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </form>
+              {renderSuggestions()}
+            </div>
+            
+            <button
+                onClick={handleThemeToggle}
+                className={`h-10 w-10 flex-shrink-0 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none transition-all duration-300 ${isThemeToggleClicked ? 'ring-2 ring-cyan-400' : 'ring-transparent'}`}
+                aria-label="Toggle theme"
+              >
+                {themeContext?.theme === 'dark' ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
               </button>
-            </form>
+
             <div className="hidden lg:flex items-center">
               {authContext?.user ? (
                 <div className="relative" ref={profileMenuRef}>
-                  <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className="flex items-center space-x-2 text-white p-1 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                    <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center font-bold text-sm">
-                      {authContext.user.username.charAt(0).toUpperCase()}
-                    </div>
+                  <button onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)} className="flex items-center space-x-2 text-slate-900 dark:text-white px-3 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-black focus:ring-white h-10">
+                    {authContext.user.profilePicture ? (
+                        <img src={authContext.user.profilePicture} alt={authContext.user.username} className="h-8 w-8 rounded-full" />
+                    ) : (
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center font-bold text-sm text-white">
+                        {authContext.user.username.charAt(0).toUpperCase()}
+                        </div>
+                    )}
                     <span className="text-sm font-medium hidden lg:block">{authContext.user.username}</span>
-                    <svg className="w-4 h-4 text-gray-400 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg className="w-4 h-4 text-slate-500 dark:text-slate-400 hidden lg:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                   </button>
                   {isProfileMenuOpen && (
-                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex={-1}>
-                      <Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white" role="menuitem" tabIndex={-1}>
+                    <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none z-10" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex={-1}>
+                      <ReactRouterDOM.Link to="/profile" onClick={() => setIsProfileMenuOpen(false)} className="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white" role="menuitem" tabIndex={-1}>
                         Your Profile
-                      </Link>
-                      <button onClick={handleLogout} className="w-full text-left block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white" role="menuitem" tabIndex={-1}>
+                      </ReactRouterDOM.Link>
+                      <button onClick={handleLogout} className="w-full text-left block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white" role="menuitem" tabIndex={-1}>
                         Logout
                       </button>
                     </div>
                   )}
                 </div>
               ) : (
-                <Link to="/" className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md text-sm">Login</Link>
+                <ReactRouterDOM.Link to="/" className="h-10 flex items-center justify-center bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold px-4 rounded-lg text-sm transition-all transform hover:scale-105">Login</ReactRouterDOM.Link>
               )}
             </div>
-             {/* Mobile menu button */}
+            {/* Mobile menu button */}
             <div className="lg:hidden flex items-center">
-                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} type="button" className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white" aria-controls="mobile-menu" aria-expanded={isMobileMenuOpen}>
+                <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} type="button" className="h-10 w-10 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 focus:outline-none" aria-controls="mobile-menu" aria-expanded={isMobileMenuOpen}>
                 <span className="sr-only">Open main menu</span>
                 <svg className={`${isMobileMenuOpen ? 'hidden' : 'block'} h-6 w-6`} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -132,47 +257,65 @@ const Navbar: React.FC = () => {
       </div>
 
        {/* Mobile menu, show/hide based on menu state. */}
-      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} lg:hidden`} id="mobile-menu">
+      <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} lg:hidden border-t border-slate-200 dark:border-slate-700/50`} id="mobile-menu">
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {navLinks.map((link) => (
-                <Link key={link.to} to={link.to} onClick={closeMobileMenu} className={getLinkClassName(link.to, 'block px-3 py-2 rounded-md text-base font-medium transition-all duration-300')}>
+                <ReactRouterDOM.Link key={link.to} to={link.to} onClick={closeMobileMenu} className={getLinkClassName(link.to, 'block px-3 py-2 rounded-md text-base font-medium transition-all duration-300')}>
                     {link.label}
-                </Link>
+                </ReactRouterDOM.Link>
             ))}
              {authContext?.user && (
-                 <Link to="/profile" onClick={closeMobileMenu} className={getLinkClassName('/profile', 'block px-3 py-2 rounded-md text-base font-medium transition-all duration-300')}>
+                 <ReactRouterDOM.Link to="/profile" onClick={closeMobileMenu} className={getLinkClassName('/profile', 'block px-3 py-2 rounded-md text-base font-medium transition-all duration-300')}>
                     Your Profile
-                </Link>
+                </ReactRouterDOM.Link>
             )}
         </div>
-        <div className="pt-4 pb-3 border-t border-gray-700">
-          <div className="px-5 sm:px-3 mb-3">
+        <div className="pt-4 pb-3 border-t border-slate-200 dark:border-slate-700">
+          <div ref={mobileSearchContainerRef} className="px-5 sm:px-3 mb-3 relative">
              <form onSubmit={handleSearch} className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search movies..."
-                className="bg-gray-700 text-white placeholder-gray-400 rounded-full py-2 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
-              />
-              <button type="submit" className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-white" aria-label="Search">
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for a movie..."
+                  className="h-10 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent w-full"
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button 
+                    type="button" 
+                    onClick={handleClearSearch}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white" 
+                    aria-label="Clear search"
+                  >
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
             </form>
+            {renderSuggestions()}
           </div>
           {authContext?.user ? (
             <div className="flex items-center px-5 sm:px-3">
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center font-bold">
-                    {authContext.user.username.charAt(0).toUpperCase()}
-                </div>
+                  {authContext.user.profilePicture ? (
+                      <img src={authContext.user.profilePicture} alt={authContext.user.username} className="h-10 w-10 rounded-full" />
+                  ) : (
+                      <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center font-bold text-white">
+                          {authContext.user.username.charAt(0).toUpperCase()}
+                      </div>
+                  )}
               </div>
               <div className="ml-3">
-                <div className="text-base font-medium leading-none text-white">{authContext.user.username}</div>
+                <div className="text-base font-medium leading-none text-slate-800 dark:text-white">{authContext.user.username}</div>
               </div>
-              <button onClick={handleLogout} className="ml-auto bg-gray-700 flex-shrink-0 p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+              <button onClick={handleLogout} className="ml-auto bg-slate-200 dark:bg-slate-700 flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-black focus:ring-white">
                 <span className="sr-only">Logout</span>
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -181,7 +324,7 @@ const Navbar: React.FC = () => {
             </div>
           ) : (
             <div className="px-2 sm:px-3">
-                <Link to="/" onClick={closeMobileMenu} className="block w-full text-left bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-md text-base">Login</Link>
+                <ReactRouterDOM.Link to="/" onClick={closeMobileMenu} className="block w-full text-center bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold h-10 flex items-center justify-center rounded-lg text-base">Login</ReactRouterDOM.Link>
             </div>
           )}
         </div>

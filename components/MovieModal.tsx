@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
 import { getMovieDetails, getSimilarMovies } from '../services/tmdbService';
 import { MovieDetails, Movie, CastMember, CrewMember } from '../types';
 import { TMDB_IMAGE_BASE_URL } from '../constants';
@@ -235,7 +236,7 @@ const MovieModal: React.FC = () => {
                     {cast.length > 0 ? (
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
                         {cast.slice(0, 15).map(member => (
-                          <Link to={`/person/${member.id}`} key={member.id} className="text-center group" onClick={handleClose}>
+                          <ReactRouterDOM.Link to={`/person/${member.id}`} key={member.id} className="text-center group" onClick={handleClose}>
                             <div className="overflow-hidden rounded-lg shadow-md mb-2">
                                 <img 
                                     src={member.profile_path ? `${TMDB_IMAGE_BASE_URL}${member.profile_path}` : `https://ui-avatars.com/api/?name=${member.name.replace(/\s/g, '+')}&background=374151&color=fff&size=256`} 
@@ -245,7 +246,7 @@ const MovieModal: React.FC = () => {
                             </div>
                             <p className="font-bold text-sm group-hover:text-blue-400 transition-colors">{member.name}</p>
                             <p className="text-xs text-gray-400">{member.character}</p>
-                          </Link>
+                          </ReactRouterDOM.Link>
                         ))}
                     </div>
                     ) : <p className="text-gray-400">No cast information available.</p> }
@@ -256,16 +257,27 @@ const MovieModal: React.FC = () => {
                     {crew.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-sm">
                         {crew.filter(m => ['Director', 'Screenplay', 'Writer', 'Producer'].includes(m.job)).filter((v, i, s) => s.findIndex(t => (t.id === v.id && t.job === v.job)) === i).slice(0, 8).map((m, i) => (
-                        <Link to={`/person/${m.id}`} key={`${m.id}-${i}`} className="flex justify-between border-b border-gray-800 py-2 hover:bg-gray-800 px-2 rounded">
+                        <ReactRouterDOM.Link to={`/person/${m.id}`} key={`${m.id}-${i}`} className="flex justify-between border-b border-gray-800 py-2 hover:bg-gray-800 px-2 rounded">
                             <span className="font-semibold text-gray-300">{m.job}</span>
                             <span className="text-gray-400">{m.name}</span>
-                        </Link>
+                        </ReactRouterDOM.Link>
                         ))}
                     </div>
                     ) : <p className="text-gray-400">No crew information available.</p> }
                 </div>
                 
-                {similarMovies.length > 0 && (<div><h3 className="text-2xl font-semibold mb-4">Similar Movies</h3><div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">{similarMovies.slice(0, 5).map(m => ( <MovieCard key={m.id} movie={m} /> ))}</div></div>)}
+                {similarMovies.length > 0 && (
+                  <div>
+                    <h3 className="text-2xl font-semibold mb-4 border-l-4 border-green-500 pl-3">You Might Also Like</h3>
+                    <div className="flex overflow-x-auto space-x-4 pb-4 -mx-4 sm:-mx-6 px-4 sm:px-6">
+                      {similarMovies.map(m => (
+                        <div key={m.id} className="flex-shrink-0 w-40 sm:w-48">
+                          <MovieCard movie={m} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
             </div>
         </>
     );

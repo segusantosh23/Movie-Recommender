@@ -1,8 +1,10 @@
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
 
 const Logo: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
-  <Link to="/home" className="group flex items-center space-x-2 text-white flex-shrink-0" onClick={onClick}>
+  <ReactRouterDOM.Link to="/home" className="group flex items-center space-x-2 text-slate-900 dark:text-white flex-shrink-0" onClick={onClick}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="32"
@@ -37,7 +39,7 @@ const Logo: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
     <span className="text-xl font-bold">
       Movie Recommender
     </span>
-  </Link>
+  </ReactRouterDOM.Link>
 );
 
 export default Logo;

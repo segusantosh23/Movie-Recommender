@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, Link } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
 import { getMovieDetails, getSimilarMovies } from '../services/tmdbService';
 import { MovieDetails, Movie } from '../types';
 import { TMDB_IMAGE_BASE_URL } from '../constants';
@@ -8,9 +9,10 @@ import { AuthContext } from '../contexts/AuthContext';
 import Spinner from '../components/Spinner';
 import Rating from '../components/Rating';
 import MovieCard from '../components/MovieCard';
+import BackButton from '../components/BackButton';
 
 const MovieDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = ReactRouterDOM.useParams<{ id: string }>();
   const [movie, setMovie] = useState<MovieDetails | null>(null);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,7 +117,8 @@ const MovieDetail: React.FC = () => {
 
 
   return (
-    <div>
+    <div className="page-fade-in">
+      <BackButton />
       <div className="relative h-[50vh] md:h-[70vh] w-full bg-cover bg-center -mt-8 -mx-4 bg-black">
         {isPlayingTrailer && trailer ? (
           <div className="w-full h-full relative">
@@ -268,7 +271,7 @@ const MovieDetail: React.FC = () => {
                 {cast.length > 0 ? (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                     {cast.slice(0, 16).map(member => (
-                      <Link to={`/person/${member.id}`} key={member.id} className="text-center group" onClick={() => setIsCastModalOpen(false)}>
+                      <ReactRouterDOM.Link to={`/person/${member.id}`} key={member.id} className="text-center group" onClick={() => setIsCastModalOpen(false)}>
                         <div className="overflow-hidden rounded-lg shadow-md mb-2">
                             <img 
                               src={member.profile_path ? `${TMDB_IMAGE_BASE_URL}${member.profile_path}` : `https://ui-avatars.com/api/?name=${member.name.replace(/\s/g, '+')}&background=374151&color=fff&size=256`} 
@@ -278,7 +281,7 @@ const MovieDetail: React.FC = () => {
                         </div>
                         <p className="font-bold text-sm group-hover:text-blue-400 transition-colors">{member.name}</p>
                         <p className="text-xs text-gray-400">{member.character}</p>
-                      </Link>
+                      </ReactRouterDOM.Link>
                     ))}
                   </div>
                 ) : (
@@ -295,10 +298,10 @@ const MovieDetail: React.FC = () => {
                       .filter((value, index, self) => self.findIndex(v => v.id === value.id && v.job === value.job) === index) // remove duplicates
                       .slice(0, 10)
                       .map((member, index) => (
-                      <Link to={`/person/${member.id}`} key={`${member.id}-${index}`} className="flex justify-between border-b border-gray-800 py-2 hover:bg-gray-800 px-2 rounded">
+                      <ReactRouterDOM.Link to={`/person/${member.id}`} key={`${member.id}-${index}`} className="flex justify-between border-b border-gray-800 py-2 hover:bg-gray-800 px-2 rounded">
                         <span className="font-semibold text-gray-300">{member.job}</span>
                         <span className="text-gray-400">{member.name}</span>
-                      </Link>
+                      </ReactRouterDOM.Link>
                     ))}
                   </div>
                 ) : (

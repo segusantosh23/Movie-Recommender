@@ -85,6 +85,7 @@ export interface PaginatedResponse<T> {
 
 export interface User {
   username: string;
+  profilePicture?: string;
 }
 
 export interface AIRecommendation {

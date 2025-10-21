@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
 import { Movie } from '../types';
 import { TMDB_IMAGE_BASE_URL } from '../constants';
 
@@ -19,12 +20,12 @@ const HeroBanner: React.FC<HeroBannerProps> = ({ movie }) => {
       <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white z-10 max-w-2xl">
         <h1 className="text-4xl md:text-6xl font-black mb-4 drop-shadow-lg">{movie.title || movie.name}</h1>
         <p className="text-lg mb-6 drop-shadow-md hidden md:block">{movie.overview}</p>
-        <Link 
+        <ReactRouterDOM.Link 
           to={`/movie/${movie.id}`}
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-lg transition-transform transform hover:scale-105"
         >
           View Details
-        </Link>
+        </ReactRouterDOM.Link>
       </div>
     </div>
   );

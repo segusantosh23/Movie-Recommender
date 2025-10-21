@@ -1,110 +1,91 @@
+
 import React, { useState, useContext, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
+import Logo from '../components/Logo';
 
 const Auth: React.FC = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [agreed, setAgreed] = useState(false);
   const authContext = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navigate = ReactRouterDOM.useNavigate();
 
   useEffect(() => {
+    // If user has already agreed in a previous session, redirect to home
     if (authContext?.user) {
       navigate('/home');
     }
   }, [authContext, navigate]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!username || !password) {
-      setError('Please fill in all fields.');
-      return;
+  
+  const handleContinue = () => {
+    if (agreed && authContext) {
+      authContext.login({ username: 'Guest' });
+      navigate('/home');
     }
-    setError('');
-    // This is a mock authentication. In a real app, you would make an API call.
-    // For this demo, any username/password combination will "log in" the user.
-    authContext?.login(username);
-    navigate('/home');
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg shadow-lg">
-        <div>
-          <h2 className="text-3xl font-extrabold text-center text-white">
-            {isLogin ? 'Sign in to your account' : 'Create a new account'}
-          </h2>
+    <div className="flex flex-col items-center justify-center min-h-screen relative p-4 bg-white dark:bg-black transition-colors duration-300">
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url('https://image.tmdb.org/t/p/original/rSPw7Vjmk3Mdo4N32jw62s7wQax.jpg')` }}
+      >
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+      </div>
+      
+      <div className="relative z-10 flex flex-col items-center">
+        <div className="mb-8">
+            <Logo />
         </div>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
+        <div className="w-full max-w-md md:max-w-lg lg:max-w-xl p-8 space-y-6 bg-black/50 backdrop-blur-lg border border-slate-700 rounded-2xl shadow-2xl">
             <div>
-              <label htmlFor="username" className="sr-only">Username</label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-900 placeholder-gray-500 text-white rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
+              <h2 className="text-3xl font-extrabold text-center text-white">
+                  Terms and Conditions
+              </h2>
+              <p className="mt-2 text-center text-sm text-slate-400">Please read and agree to the terms before continuing.</p>
             </div>
+            
+            <div className="text-sm text-slate-300 h-48 overflow-y-auto p-4 bg-slate-800/50 rounded-lg border border-slate-600 scrollbar-hide">
+              <h3 className="font-bold mb-2">1. Introduction</h3>
+              <p className="mb-4">Welcome to Movie Recommender. By using our application, you agree to be bound by these terms and conditions. If you do not agree to these terms, please do not use the application.</p>
+              
+              <h3 className="font-bold mb-2">2. Use of Service</h3>
+              <p className="mb-4">This service is provided for personal, non-commercial use only. You agree not to use the service for any illegal or unauthorized purpose. You are responsible for your own conduct and content while using the service.</p>
+              
+              <h3 className="font-bold mb-2">3. Intellectual Property</h3>
+              <p className="mb-4">All content provided on the service, including text, graphics, logos, and images, is the property of Movie Recommender or its content suppliers and is protected by international copyright laws. Movie data and images are provided by The Movie Database (TMDb).</p>
+
+              <h3 className="font-bold mb-2">4. Disclaimers</h3>
+              <p className="mb-4">The service is provided "as is" without any warranties of any kind. We do not guarantee the accuracy, completeness, or timeliness of the information provided. Recommendations are generated by AI and may not always be suitable.</p>
+
+              <h3 className="font-bold mb-2">5. Limitation of Liability</h3>
+              <p className="mb-4">In no event shall Movie Recommender be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in connection with your use of the service.</p>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="agree-checkbox"
+                name="agree-checkbox"
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="h-4 w-4 text-cyan-500 bg-slate-700 border-slate-600 rounded focus:ring-cyan-500"
+              />
+              <label htmlFor="agree-checkbox" className="ml-2 block text-sm text-slate-300">
+                I have read and agree to the Terms and Conditions.
+              </label>
+            </div>
+
             <div>
-              <label htmlFor="password"className="sr-only">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-700 bg-gray-900 placeholder-gray-500 text-white rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                <button 
+                  onClick={handleContinue} 
+                  disabled={!agreed}
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-lg text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black focus:ring-cyan-500 transition-all duration-300 transform hover:scale-105 disabled:bg-slate-500 disabled:from-slate-500 disabled:to-slate-600 disabled:cursor-not-allowed disabled:scale-100"
+                >
+                  Continue
+                </button>
             </div>
-          </div>
-          
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-
-          <div>
-            <button type="submit" className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-              {isLogin ? 'Sign in' : 'Register'}
-            </button>
-          </div>
-        </form>
-        <p className="text-sm text-center text-gray-400">
-          {isLogin ? "Don't have an account?" : "Already have an account?"}
-          <button onClick={() => setIsLogin(!isLogin)} className="ml-2 font-medium text-blue-500 hover:text-blue-400">
-            {isLogin ? 'Sign up' : 'Sign in'}
-          </button>
-        </p>
-
-        <div className="relative flex py-2 items-center">
-            <div className="flex-grow border-t border-gray-600"></div>
-            <span className="flex-shrink mx-4 text-gray-400 text-sm">Or continue with</span>
-            <div className="flex-grow border-t border-gray-600"></div>
         </div>
-
-        <div className="space-y-4">
-            <button type="button" className="w-full inline-flex items-center justify-center py-2.5 px-4 text-sm font-medium text-gray-900 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                <svg className="w-5 h-5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 19">
-                    <path fillRule="evenodd" d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.342A8.851 8.851 0 0 1 18 13.044a8.841 8.841 0 0 1-9.158 5.039Z" clipRule="evenodd"/>
-                </svg>
-                {isLogin ? 'Sign in with Google' : 'Sign up with Google'}
-            </button>
-            <button type="button" className="w-full inline-flex items-center justify-center py-2.5 px-4 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                <svg className="w-5 h-5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 8 19">
-                    <path fillRule="evenodd" d="M6.135 3H8V0H6.135a4.147 4.147 0 0 0-4.142 4.142V6H0v3h2v9.938h3V9h2.021l.592-3H5V3.591A.6.6 0 0 1 5.592 3h.543Z" clipRule="evenodd"/>
-                </svg>
-                {isLogin ? 'Sign in with Facebook' : 'Sign up with Facebook'}
-            </button>
-        </div>
-
       </div>
     </div>
   );

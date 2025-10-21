@@ -4,7 +4,7 @@ import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string) => void;
+  login: (user: User) => void;
   logout: () => void;
   updateUser: (newUsername: string) => void;
 }
@@ -30,10 +30,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const login = (username: string) => {
-    const newUser: User = { username };
-    setUser(newUser);
-    localStorage.setItem('cinesuggest_user', JSON.stringify(newUser));
+  const login = (user: User) => {
+    setUser(user);
+    localStorage.setItem('cinesuggest_user', JSON.stringify(user));
   };
 
   const logout = () => {

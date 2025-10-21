@@ -1,16 +1,18 @@
 import React, { useContext } from 'react';
-import { Navigate } from 'react-router-dom';
+// Fix: Use namespace import for react-router-dom
+import * as ReactRouterDOM from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
 interface ProtectedRouteProps {
-  children: JSX.Element;
+  // Fix: Use React.ReactElement to resolve "Cannot find namespace 'JSX'" error.
+  children: React.ReactElement;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const authContext = useContext(AuthContext);
 
   if (!authContext?.user) {
-    return <Navigate to="/" />;
+    return <ReactRouterDOM.Navigate to="/" />;
   }
 
   return children;

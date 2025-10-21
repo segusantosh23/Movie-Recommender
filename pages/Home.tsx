@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect, useContext } from 'react';
-import { getDiscoverMovies } from '../services/tmdbService';
+import { getDiscoverMovies, getNowPlayingMovies } from '../services/tmdbService';
 import { Movie } from '../types';
 import MovieCard from '../components/MovieCard';
 import Spinner from '../components/Spinner';
+import Carousel from '../components/Carousel';
 import { GenreContext } from '../contexts/GenreContext';
+import SortDropdown from '../components/SortDropdown';
 
 // Helper to shuffle the array for a mixed experience
 const shuffleArray = <T,>(array: T[]): T[] => {
@@ -17,11 +20,14 @@ const shuffleArray = <T,>(array: T[]): T[] => {
 
 const Home: React.FC = () => {
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [nowPlayingMovies, setNowPlayingMovies] = useState<Movie[]>([]);
+  const [filteredNowPlayingMovies, setFilteredNowPlayingMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedGenre, setSelectedGenre] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedCertification, setSelectedCertification] = useState<string>('');
+  const [sortOption, setSortOption] = useState<string>('popularity.desc');
 
   const genreContext = useContext(GenreContext);
   const genres = genreContext?.genres || [];
@@ -45,9 +51,15 @@ const Home: React.FC = () => {
         setLoading(true);
         setError(null);
         
-        const baseParams: Record<string, string> = { sort_by: 'popularity.desc' };
+        const baseParams: Record<string, string> = { sort_by: sortOption };
         if (selectedGenre) baseParams.with_genres = selectedGenre;
         if (selectedYear) baseParams.primary_release_year = selectedYear;
+
+        // When sorting by newest, ensure we don't include future movies.
+        if (sortOption === 'release_date.desc') {
+          const today = new Date().toISOString().split('T')[0];
+          baseParams['primary_release_date.lte'] = today;
+        }
 
         // Create a separate params object for the Indian movie query to get films originating from India.
         const indianParams = { ...baseParams, with_origin_country: 'IN' };
@@ -56,16 +68,20 @@ const Home: React.FC = () => {
         const globalParams = { ...baseParams };
         
         // Apply US-specific certification filter using "less than or equal to".
-        // This ensures that selecting e.g., "Teen (13+)" includes G, PG, and PG-13 rated movies.
         if (selectedCertification) {
           globalParams.certification_country = 'US';
           globalParams['certification.lte'] = selectedCertification;
         }
 
-        const [globalResponse, indianResponse] = await Promise.all([
+        const regionParams = { region: 'IN' };
+
+        const [globalResponse, indianResponse, nowPlayingResponse] = await Promise.all([
           getDiscoverMovies(globalParams),
-          getDiscoverMovies(indianParams)
+          getDiscoverMovies(indianParams),
+          getNowPlayingMovies(regionParams)
         ]);
+        
+        setNowPlayingMovies(nowPlayingResponse.results);
         
         const combinedMovies = [...globalResponse.results, ...indianResponse.results];
 
@@ -76,7 +92,12 @@ const Home: React.FC = () => {
         });
         const uniqueMovies = Array.from(uniqueMoviesMap.values());
         
-        setMovies(shuffleArray(uniqueMovies));
+        // Only shuffle if sorting by popularity to maintain some variety, otherwise respect the sort order
+        if (sortOption === 'popularity.desc') {
+            setMovies(shuffleArray(uniqueMovies));
+        } else {
+            setMovies(uniqueMovies);
+        }
 
       } catch (err) {
         if (err instanceof Error) {
@@ -90,70 +111,93 @@ const Home: React.FC = () => {
     };
 
     fetchMovies();
-  }, [selectedGenre, selectedYear, selectedCertification]);
+  }, [selectedGenre, selectedYear, selectedCertification, sortOption]);
+
+  // Effect to filter "Now Playing" movies on the client-side
+  useEffect(() => {
+    let filtered = nowPlayingMovies;
+
+    if (selectedGenre) {
+      filtered = filtered.filter(movie => movie.genre_ids?.includes(parseInt(selectedGenre, 10)));
+    }
+
+    if (selectedYear) {
+      filtered = filtered.filter(movie => movie.release_date?.startsWith(selectedYear));
+    }
+
+    setFilteredNowPlayingMovies(filtered);
+  }, [nowPlayingMovies, selectedGenre, selectedYear]);
 
   const handleResetFilters = () => {
     setSelectedGenre('');
     setSelectedYear('');
     setSelectedCertification('');
+    setSortOption('popularity.desc');
   };
 
-  const filterSelectClasses = "bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5";
+  const filterSelectClasses = "bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5";
 
   return (
-    <div className="space-y-8">
-      <section className="bg-gray-800/50 p-6 rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-            <div>
-              <label htmlFor="genre-select" className="block mb-2 text-sm font-medium text-gray-400">Genre</label>
-              <select id="genre-select" value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)} className={filterSelectClasses}>
-                  <option value="">All Genres</option>
-                  {genres.map(genre => (
-                    <option key={genre.id} value={String(genre.id)}>{genre.name}</option>
-                  ))}
-              </select>
+    <div className="space-y-12">
+      {loading ? <Spinner /> : error ? <div className="text-center text-red-500 text-xl mt-10">{error}</div> : (
+        <>
+          <section className="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
+                <div>
+                  <label htmlFor="genre-select" className="block mb-2 text-sm font-medium text-slate-600 dark:text-slate-400">Genre</label>
+                  <select id="genre-select" value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)} className={filterSelectClasses}>
+                      <option value="">All Genres</option>
+                      {genres.map(genre => (
+                        <option key={genre.id} value={String(genre.id)}>{genre.name}</option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="year-select" className="block mb-2 text-sm font-medium text-slate-600 dark:text-slate-400">Year</label>
+                  <select id="year-select" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className={filterSelectClasses}>
+                      <option value="">Any Year</option>
+                      {years.map(year => (
+                        <option key={year} value={String(year)}>{year}</option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="certification-select" className="block mb-2 text-sm font-medium text-slate-600 dark:text-slate-400">Rating</label>
+                  <select id="certification-select" value={selectedCertification} onChange={(e) => setSelectedCertification(e.target.value)} className={filterSelectClasses}>
+                      <option value="">Any Rating</option>
+                      {ageRatings.map(rating => (
+                        <option key={rating.value} value={rating.value}>{rating.label}</option>
+                      ))}
+                  </select>
+                </div>
+                <div>
+                    <SortDropdown sortOption={sortOption} setSortOption={setSortOption} />
+                </div>
+                <button onClick={handleResetFilters} className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold py-2.5 px-4 rounded-lg w-full transition-colors h-[42px]">
+                    Reset
+                </button>
             </div>
-            <div>
-              <label htmlFor="year-select" className="block mb-2 text-sm font-medium text-gray-400">Year Released</label>
-              <select id="year-select" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className={filterSelectClasses}>
-                  <option value="">Any Year</option>
-                  {years.map(year => (
-                    <option key={year} value={String(year)}>{year}</option>
-                  ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="certification-select" className="block mb-2 text-sm font-medium text-gray-400">Age Rating</label>
-              <select id="certification-select" value={selectedCertification} onChange={(e) => setSelectedCertification(e.target.value)} className={filterSelectClasses}>
-                  <option value="">Any Rating</option>
-                  {ageRatings.map(rating => (
-                    <option key={rating.value} value={rating.value}>{rating.label}</option>
-                  ))}
-              </select>
-            </div>
-            <button onClick={handleResetFilters} className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2.5 px-4 rounded-lg w-full transition-colors">
-                Reset Filters
-            </button>
-        </div>
-      </section>
+          </section>
 
-      <section>
-        <h2 className="text-2xl md:text-3xl font-bold mb-6 border-l-4 border-blue-500 pl-4">Discover Movies</h2>
-        {loading ? <Spinner /> : error ? <div className="text-center text-red-500 text-xl mt-10">{error}</div> : (
-          movies.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-              {movies.map(movie => (
-                <MovieCard key={movie.id} movie={movie} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-gray-400 text-lg mt-10 p-6 bg-gray-800/50 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">No Movies Found</h3>
-              <p>We couldn't find any movies matching your criteria. Try adjusting your filters.</p>
-            </div>
-          )
-        )}
-      </section>
+          <Carousel title="Now Playing in Theaters" movies={filteredNowPlayingMovies} />
+          
+          <section>
+            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 border-l-4 border-blue-500 pl-4">Discover Movies</h2>
+            {movies.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                {movies.map(movie => (
+                  <MovieCard key={movie.id} movie={movie} />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-slate-500 dark:text-slate-400 text-lg mt-10 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
+                <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-white">No Movies Found</h3>
+                <p>We couldn't find any movies matching your criteria. Try adjusting your filters.</p>
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </div>
   );
 };
