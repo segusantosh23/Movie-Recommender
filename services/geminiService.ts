@@ -2,11 +2,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AIRecommendation } from "../types";
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set. Please set it in your environment.");
+if (!process.env.GEMINI_API_KEY) {
+  throw new Error("GEMINI_API_KEY environment variable not set. Please set it in your environment.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export const getAIRecommendations = async (prompt: string, likedMovieTitles: string[] = []): Promise<AIRecommendation[]> => {
   try {
