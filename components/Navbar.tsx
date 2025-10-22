@@ -122,22 +122,22 @@ const Navbar: React.FC = () => {
 
   const renderSuggestions = () => (
     suggestions.length > 0 && (
-      <div className="absolute top-full mt-2 w-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-20 overflow-hidden">
+      <div className="absolute top-full mt-2 w-full bg-netflix-dark-gray/95 backdrop-blur-sm border border-netflix-gray rounded-lg shadow-xl z-20 overflow-hidden">
         <ul>
           {suggestions.map(movie => (
             <li 
               key={movie.id} 
               onClick={() => handleSuggestionClick(movie.id)}
-              className="px-4 py-3 flex items-center space-x-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="px-4 py-3 flex items-center space-x-4 cursor-pointer hover:bg-netflix-gray transition-colors"
             >
               <img 
                 src={movie.poster_path ? `https://image.tmdb.org/t/p/w92${movie.poster_path}` : `https://picsum.photos/50/75?random=${movie.id}`} 
                 alt={movie.title} 
-                className="w-12 aspect-[2/3] object-cover rounded flex-shrink-0 bg-slate-200 dark:bg-slate-700"
+                className="w-12 aspect-[2/3] object-cover rounded flex-shrink-0 bg-netflix-gray"
               />
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white line-clamp-2">{movie.title || movie.name}</p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{movie.release_date?.substring(0, 4)}</p>
+                <p className="font-semibold text-netflix-white line-clamp-2">{movie.title || movie.name}</p>
+                <p className="text-sm text-netflix-text-gray">{movie.release_date?.substring(0, 4)}</p>
               </div>
             </li>
           ))}

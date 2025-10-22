@@ -58,7 +58,7 @@ const Carousel: React.FC<CarouselProps> = ({ title, movies }) => {
   }
 
   return (
-    <section className="relative group mb-12">
+    <section className="relative group mb-12 animate-fade-in">
       <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 text-netflix-white pl-4">{title}</h2>
       
       {!isAtStart && (

@@ -8,6 +8,7 @@ import { GenreContext } from '../contexts/GenreContext';
 import { getMovieDetails } from '../services/tmdbService';
 import { MovieModalContext } from '../contexts/MovieModalContext';
 import Spinner from './Spinner';
+import VideoPreview from './VideoPreview';
 
 interface MovieCardProps {
   movie: Movie;
@@ -17,6 +18,7 @@ interface MovieCardProps {
 const MovieCard: React.FC<MovieCardProps> = ({ movie, userRating }) => {
   const [providers, setProviders] = useState<WatchProvider[]>([]);
   const [loadingProviders, setLoadingProviders] = useState(true);
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
   const imageUrl = movie.poster_path
     ? `${TMDB_IMAGE_BASE_URL}${movie.poster_path}`
     : `https://picsum.photos/500/750?random=${movie.id}`;
@@ -87,10 +89,22 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, userRating }) => {
     openModal(movie.id);
   };
 
+  const handleMouseEnter = () => {
+    setShowVideoPreview(true);
+  };
+
+  const handleMouseLeave = () => {
+    setShowVideoPreview(false);
+  };
+
   const movieGenres = getGenreNames(movie.genre_ids || []).slice(0, 2);
 
   return (
-    <div className="bg-netflix-dark-gray rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 group relative border border-netflix-gray hover:border-netflix-red">
+    <div 
+      className="bg-netflix-dark-gray rounded-lg overflow-hidden shadow-lg netflix-hover group relative border border-netflix-gray hover:border-netflix-red animate-fade-in"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
        {userRating && (
         <div className="absolute top-3 left-3 z-20 bg-netflix-red/95 backdrop-blur-sm text-netflix-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-lg">
           <svg className="w-3 h-3 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
@@ -147,6 +161,13 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, userRating }) => {
           </div>
         </div>
       </div>
+      
+      {/* Video Preview Overlay */}
+      <VideoPreview 
+        movie={movie} 
+        isVisible={showVideoPreview} 
+        onClose={() => setShowVideoPreview(false)} 
+      />
     </div>
   );
 };

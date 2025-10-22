@@ -5,6 +5,7 @@ import { Movie } from '../types';
 import MovieCard from '../components/MovieCard';
 import Spinner from '../components/Spinner';
 import Carousel from '../components/Carousel';
+import HeroCarousel from '../components/HeroCarousel';
 import MovieGrid from '../components/MovieGrid';
 import { GenreContext } from '../contexts/GenreContext';
 import SortDropdown from '../components/SortDropdown';
@@ -142,6 +143,11 @@ const Home: React.FC = () => {
     <div className="space-y-12">
       {loading ? <Spinner /> : error ? <div className="text-center text-red-500 text-xl mt-10">{error}</div> : (
         <>
+          {/* Hero Carousel */}
+          {filteredNowPlayingMovies.length > 0 && (
+            <HeroCarousel movies={filteredNowPlayingMovies.slice(0, 6)} />
+          )}
+          
           <section className="bg-netflix-dark-gray p-6 rounded-lg border border-netflix-gray">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                 <div>
