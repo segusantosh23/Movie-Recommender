@@ -57,7 +57,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ movies }) => {
   const currentMovie = movies[currentIndex];
 
   return (
-    <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden">
+    <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden bg-netflix-red border-4 border-yellow-500">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
@@ -68,6 +68,11 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ movies }) => {
         {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-netflix-black via-netflix-black/50 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-netflix-black via-transparent to-transparent" />
+      </div>
+
+      {/* Debug Info */}
+      <div className="absolute top-4 left-4 z-30 bg-yellow-500 text-black p-2 rounded font-bold">
+        DEBUG: HeroCarousel is rendering! Movies: {movies.length}, Current: {currentIndex + 1}
       </div>
 
       {/* Content */}
