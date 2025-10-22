@@ -5,6 +5,7 @@ import { Movie } from '../types';
 import MovieCard from '../components/MovieCard';
 import Spinner from '../components/Spinner';
 import Carousel from '../components/Carousel';
+import MovieGrid from '../components/MovieGrid';
 import { GenreContext } from '../contexts/GenreContext';
 import SortDropdown from '../components/SortDropdown';
 
@@ -181,21 +182,18 @@ const Home: React.FC = () => {
 
           <Carousel title="Now Playing in Theaters" movies={filteredNowPlayingMovies} />
           
-          <section>
-            <h2 className="text-2xl md:text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 border-l-4 border-blue-500 pl-4">Discover Movies</h2>
-            {movies.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-                {movies.map(movie => (
-                  <MovieCard key={movie.id} movie={movie} />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-slate-500 dark:text-slate-400 text-lg mt-10 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
-                <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-white">No Movies Found</h3>
-                <p>We couldn't find any movies matching your criteria. Try adjusting your filters.</p>
-              </div>
-            )}
-          </section>
+          <MovieGrid 
+            movies={movies} 
+            title="Discover Movies"
+            showTitle={movies.length > 0}
+          />
+          
+          {movies.length === 0 && (
+            <div className="text-center text-slate-500 dark:text-slate-400 text-lg mt-10 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
+              <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-white">No Movies Found</h3>
+              <p>We couldn't find any movies matching your criteria. Try adjusting your filters.</p>
+            </div>
+          )}
         </>
       )}
     </div>
