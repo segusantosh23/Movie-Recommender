@@ -145,7 +145,8 @@ const Home: React.FC = () => {
         <>
           {/* Hero Carousel */}
           <div className="mb-8">
-            <HeroCarousel movies={filteredNowPlayingMovies.length > 0 ? filteredNowPlayingMovies.slice(0, 6) : movies.slice(0, 6)} />
+            {console.log('Movies for HeroCarousel:', movies.length, 'Filtered:', filteredNowPlayingMovies.length)}
+            <HeroCarousel movies={movies.slice(0, 6)} />
           </div>
           
           <section className="bg-netflix-dark-gray p-6 rounded-lg border border-netflix-gray">

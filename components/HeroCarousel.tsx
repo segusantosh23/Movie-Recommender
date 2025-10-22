@@ -44,7 +44,14 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ movies }) => {
   };
 
   if (!movies || movies.length === 0) {
-    return null;
+    return (
+      <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden bg-netflix-black flex items-center justify-center">
+        <div className="text-center text-netflix-white">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">Welcome to Movie Recommender</h2>
+          <p className="text-netflix-text-gray">Loading amazing movies for you...</p>
+        </div>
+      </div>
+    );
   }
 
   const currentMovie = movies[currentIndex];
