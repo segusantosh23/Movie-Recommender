@@ -4,7 +4,7 @@ import React from 'react';
 import * as ReactRouterDOM from 'react-router-dom';
 
 const Logo: React.FC<{ onClick?: () => void }> = ({ onClick }) => (
-  <ReactRouterDOM.Link to="/home" className="group flex items-center space-x-2 text-slate-900 dark:text-white flex-shrink-0" onClick={onClick}>
+  <ReactRouterDOM.Link to="/home" className="group flex items-center space-x-2 text-netflix-white flex-shrink-0" onClick={onClick}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="32"

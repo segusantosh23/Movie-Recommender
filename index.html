@@ -6,14 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Movie Recommender</title>
     <script>
-      // Instantly set the theme from localStorage to prevent FOUC (Flash of Unstyled Content).
-      // This runs before any content is rendered.
-      if (localStorage.getItem('cinesuggest_theme') === 'light') {
-        document.documentElement.classList.remove('dark');
-      } else {
-        // Default to dark theme if no setting is found or if it's explicitly set to 'dark'.
-        document.documentElement.classList.add('dark');
-      }
+      // Force Netflix dark theme for consistent styling
+      document.documentElement.classList.add('dark');
+      document.documentElement.style.backgroundColor = '#141414';
     </script>
     <link rel="stylesheet" href="/src/index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
