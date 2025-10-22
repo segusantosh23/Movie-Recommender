@@ -144,9 +144,9 @@ const Home: React.FC = () => {
       {loading ? <Spinner /> : error ? <div className="text-center text-red-500 text-xl mt-10">{error}</div> : (
         <>
           {/* Hero Carousel */}
-          {filteredNowPlayingMovies.length > 0 && (
-            <HeroCarousel movies={filteredNowPlayingMovies.slice(0, 6)} />
-          )}
+          <div className="mb-8">
+            <HeroCarousel movies={filteredNowPlayingMovies.length > 0 ? filteredNowPlayingMovies.slice(0, 6) : movies.slice(0, 6)} />
+          </div>
           
           <section className="bg-netflix-dark-gray p-6 rounded-lg border border-netflix-gray">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
