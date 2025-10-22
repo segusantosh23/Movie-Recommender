@@ -18,6 +18,21 @@ export default {
         '8xl': '88rem',
         '9xl': '96rem',
       },
+      colors: {
+        'netflix': {
+          'red': '#e50914',
+          'red-hover': '#f40612',
+          'black': '#141414',
+          'dark-gray': '#181818',
+          'gray': '#2f2f2f',
+          'light-gray': '#564d4d',
+          'white': '#ffffff',
+          'text-gray': '#b3b3b3',
+        }
+      },
+      fontFamily: {
+        'netflix': ['Netflix Sans', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+      },
     },
   },
   plugins: [],

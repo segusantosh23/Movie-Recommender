@@ -136,16 +136,16 @@ const Home: React.FC = () => {
     setSortOption('popularity.desc');
   };
 
-  const filterSelectClasses = "bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5";
+  const filterSelectClasses = "bg-netflix-gray border border-netflix-light-gray text-netflix-white text-sm rounded-lg focus:ring-netflix-red focus:border-netflix-red block w-full p-2.5";
 
   return (
     <div className="space-y-12">
       {loading ? <Spinner /> : error ? <div className="text-center text-red-500 text-xl mt-10">{error}</div> : (
         <>
-          <section className="bg-slate-100 dark:bg-slate-800/50 p-6 rounded-lg">
+          <section className="bg-netflix-dark-gray p-6 rounded-lg border border-netflix-gray">
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end">
                 <div>
-                  <label htmlFor="genre-select" className="block mb-2 text-sm font-medium text-slate-600 dark:text-slate-400">Genre</label>
+                  <label htmlFor="genre-select" className="block mb-2 text-sm font-medium text-netflix-text-gray">Genre</label>
                   <select id="genre-select" value={selectedGenre} onChange={(e) => setSelectedGenre(e.target.value)} className={filterSelectClasses}>
                       <option value="">All Genres</option>
                       {genres.map(genre => (
@@ -154,7 +154,7 @@ const Home: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="year-select" className="block mb-2 text-sm font-medium text-slate-600 dark:text-slate-400">Year</label>
+                  <label htmlFor="year-select" className="block mb-2 text-sm font-medium text-netflix-text-gray">Year</label>
                   <select id="year-select" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className={filterSelectClasses}>
                       <option value="">Any Year</option>
                       {years.map(year => (
@@ -163,7 +163,7 @@ const Home: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="certification-select" className="block mb-2 text-sm font-medium text-slate-600 dark:text-slate-400">Rating</label>
+                  <label htmlFor="certification-select" className="block mb-2 text-sm font-medium text-netflix-text-gray">Rating</label>
                   <select id="certification-select" value={selectedCertification} onChange={(e) => setSelectedCertification(e.target.value)} className={filterSelectClasses}>
                       <option value="">Any Rating</option>
                       {ageRatings.map(rating => (
@@ -174,7 +174,7 @@ const Home: React.FC = () => {
                 <div>
                     <SortDropdown sortOption={sortOption} setSortOption={setSortOption} />
                 </div>
-                <button onClick={handleResetFilters} className="bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold py-2.5 px-4 rounded-lg w-full transition-colors h-[42px]">
+                <button onClick={handleResetFilters} className="bg-netflix-gray hover:bg-netflix-light-gray text-netflix-white font-bold py-2.5 px-4 rounded-lg w-full transition-colors h-[42px]">
                     Reset
                 </button>
             </div>
@@ -189,8 +189,8 @@ const Home: React.FC = () => {
           />
           
           {movies.length === 0 && (
-            <div className="text-center text-slate-500 dark:text-slate-400 text-lg mt-10 p-6 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2 text-slate-800 dark:text-white">No Movies Found</h3>
+            <div className="text-center text-netflix-text-gray text-lg mt-10 p-6 bg-netflix-dark-gray rounded-lg border border-netflix-gray">
+              <h3 className="text-xl font-semibold mb-2 text-netflix-white">No Movies Found</h3>
               <p>We couldn't find any movies matching your criteria. Try adjusting your filters.</p>
             </div>
           )}

@@ -2,6 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Netflix-inspired color scheme */
+:root {
+  --netflix-red: #e50914;
+  --netflix-red-hover: #f40612;
+  --netflix-black: #141414;
+  --netflix-dark-gray: #181818;
+  --netflix-gray: #2f2f2f;
+  --netflix-light-gray: #564d4d;
+  --netflix-white: #ffffff;
+  --netflix-text-gray: #b3b3b3;
+}
+
+/* Netflix-style base styles */
+body {
+  background-color: var(--netflix-black);
+  color: var(--netflix-white);
+  font-family: 'Netflix Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Netflix-style scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--netflix-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--netflix-gray);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--netflix-light-gray);
+}
+
 /* Custom responsive breakpoints */
 @media (min-width: 475px) {
   .xs\:w-36 {

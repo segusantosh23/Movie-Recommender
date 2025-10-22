@@ -90,9 +90,9 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, userRating }) => {
   const movieGenres = getGenreNames(movie.genre_ids || []).slice(0, 2);
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 group relative border border-slate-200 dark:border-slate-700 hover:border-cyan-400">
+    <div className="bg-netflix-dark-gray rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 group relative border border-netflix-gray hover:border-netflix-red">
        {userRating && (
-        <div className="absolute top-3 left-3 z-20 bg-blue-600/95 backdrop-blur-sm text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-lg">
+        <div className="absolute top-3 left-3 z-20 bg-netflix-red/95 backdrop-blur-sm text-netflix-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center space-x-1 shadow-lg">
           <svg className="w-3 h-3 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
           </svg>
@@ -101,11 +101,11 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, userRating }) => {
       )}
        {authContext?.user && (
         <div className="absolute top-3 right-3 z-20 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button onClick={handleLikeClick} title={isLiked(movie.id) ? 'Unlike' : 'Like'} className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-2 rounded-full text-slate-800 dark:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors duration-200 shadow-lg">
-             <svg className={`w-4 h-4 transition-colors ${isLiked(movie.id) ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'}`} fill={isLiked(movie.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 016.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg>
+          <button onClick={handleLikeClick} title={isLiked(movie.id) ? 'Unlike' : 'Like'} className="bg-netflix-gray/90 backdrop-blur-sm p-2 rounded-full text-netflix-white hover:bg-netflix-light-gray transition-colors duration-200 shadow-lg">
+             <svg className={`w-4 h-4 transition-colors ${isLiked(movie.id) ? 'text-netflix-red' : 'text-netflix-text-gray'}`} fill={isLiked(movie.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 016.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z"></path></svg>
           </button>
-          <button onClick={handleWatchlistClick} title={isOnWatchlist(movie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'} className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-2 rounded-full text-slate-800 dark:text-white hover:bg-white dark:hover:bg-slate-700 transition-colors duration-200 shadow-lg">
-            <svg className={`w-4 h-4 transition-colors ${isOnWatchlist(movie.id) ? 'text-blue-500' : 'text-slate-500 dark:text-slate-400'}`} fill={isOnWatchlist(movie.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+          <button onClick={handleWatchlistClick} title={isOnWatchlist(movie.id) ? 'Remove from Watchlist' : 'Add to Watchlist'} className="bg-netflix-gray/90 backdrop-blur-sm p-2 rounded-full text-netflix-white hover:bg-netflix-light-gray transition-colors duration-200 shadow-lg">
+            <svg className={`w-4 h-4 transition-colors ${isOnWatchlist(movie.id) ? 'text-netflix-red' : 'text-netflix-text-gray'}`} fill={isOnWatchlist(movie.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
           </button>
         </div>
       )}
@@ -121,15 +121,15 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, userRating }) => {
         </div>
         <div className="p-4 space-y-3">
           <div>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100 line-clamp-2 leading-tight" title={movie.title || movie.name}>{movie.title || movie.name}</h3>
+            <h3 className="font-bold text-lg text-netflix-white line-clamp-2 leading-tight" title={movie.title || movie.name}>{movie.title || movie.name}</h3>
             {movieGenres.length > 0 && (
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
+              <p className="text-sm text-netflix-text-gray mt-1 line-clamp-1">
                 {movieGenres.join(', ')}
               </p>
             )}
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{movie.release_date?.substring(0, 4)}</span>
+            <span className="text-sm font-medium text-netflix-text-gray">{movie.release_date?.substring(0, 4)}</span>
             <div className="flex items-center gap-2">
                 <Rating value={movie.vote_average} />
                 <div className="flex items-center space-x-1">

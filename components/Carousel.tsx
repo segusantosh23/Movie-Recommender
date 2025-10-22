@@ -59,12 +59,12 @@ const Carousel: React.FC<CarouselProps> = ({ title, movies }) => {
 
   return (
     <section className="relative group mb-12">
-      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 border-l-4 border-blue-500 pl-4">{title}</h2>
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-6 text-netflix-white pl-4">{title}</h2>
       
       {!isAtStart && (
         <button
           onClick={() => scroll('left')}
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 border border-slate-200 dark:border-slate-600"
+          className="absolute left-2 top-1/2 -translate-y-1/2 z-20 bg-netflix-gray/90 hover:bg-netflix-light-gray text-netflix-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 border border-netflix-light-gray"
           aria-label="Scroll left"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -88,7 +88,7 @@ const Carousel: React.FC<CarouselProps> = ({ title, movies }) => {
       {!isAtEnd && (
         <button
           onClick={() => scroll('right')}
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-slate-800/90 hover:bg-white dark:hover:bg-slate-700 text-slate-800 dark:text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 border border-slate-200 dark:border-slate-600"
+          className="absolute right-2 top-1/2 -translate-y-1/2 z-20 bg-netflix-gray/90 hover:bg-netflix-light-gray text-netflix-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 border border-netflix-light-gray"
           aria-label="Scroll right"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

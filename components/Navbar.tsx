@@ -115,8 +115,8 @@ const Navbar: React.FC = () => {
   ];
 
   const getLinkClassName = (path: string, baseClasses: string) => {
-    const activeClasses = 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-bold';
-    const inactiveClasses = 'text-slate-500 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white';
+    const activeClasses = 'text-netflix-white font-semibold';
+    const inactiveClasses = 'text-netflix-text-gray hover:text-netflix-white';
     return `${baseClasses} ${pathname === path ? activeClasses : inactiveClasses}`;
   };
 
@@ -147,15 +147,15 @@ const Navbar: React.FC = () => {
   );
 
   return (
-    <nav className="bg-white/80 dark:bg-black/60 backdrop-blur-lg sticky top-0 z-50 border-b border-slate-200/50 dark:border-slate-800/50">
+    <nav className="bg-netflix-black/95 backdrop-blur-lg sticky top-0 z-50 border-b border-netflix-gray/30">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Left side: Logo and Desktop Nav */}
           <div className="flex items-center space-x-8">
             <Logo onClick={closeMobileMenu} />
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-1">
               {navLinks.map((link) => (
-                <ReactRouterDOM.Link key={link.to} to={link.to} className={getLinkClassName(link.to, 'h-10 px-4 flex items-center rounded-lg text-sm font-medium transition-all duration-300 whitespace-nowrap')}>
+                <ReactRouterDOM.Link key={link.to} to={link.to} className={getLinkClassName(link.to, 'h-10 px-4 flex items-center text-sm font-medium transition-all duration-300 whitespace-nowrap hover:text-netflix-white')}>
                   {link.label}
                 </ReactRouterDOM.Link>
               ))}
@@ -176,7 +176,7 @@ const Navbar: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search for a movie..."
-                  className="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 border border-slate-200 dark:border-slate-700 rounded-lg pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent w-full transition-all duration-300 h-10"
+                  className="bg-netflix-gray text-netflix-white placeholder-netflix-text-gray border border-netflix-light-gray rounded-lg pl-10 pr-10 focus:outline-none focus:ring-2 focus:ring-netflix-red focus:border-transparent w-full transition-all duration-300 h-10"
                   autoComplete="off"
                 />
                 {searchQuery && (
@@ -237,7 +237,7 @@ const Navbar: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <ReactRouterDOM.Link to="/" className="h-10 flex items-center justify-center bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-700 hover:to-cyan-600 text-white font-bold px-4 rounded-lg text-sm transition-all transform hover:scale-105">Login</ReactRouterDOM.Link>
+                <ReactRouterDOM.Link to="/" className="h-10 flex items-center justify-center bg-netflix-red hover:bg-netflix-red-hover text-netflix-white font-bold px-4 rounded text-sm transition-all transform hover:scale-105">Login</ReactRouterDOM.Link>
               )}
             </div>
             {/* Mobile menu button */}
