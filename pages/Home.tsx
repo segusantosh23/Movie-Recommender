@@ -145,7 +145,6 @@ const Home: React.FC = () => {
         <>
           {/* Hero Carousel */}
           <div className="mb-8">
-            {console.log('Movies for HeroCarousel:', movies.length, 'Filtered:', filteredNowPlayingMovies.length)}
             <HeroCarousel movies={movies.slice(0, 6)} />
           </div>
           

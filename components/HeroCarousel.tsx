@@ -57,15 +57,7 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ movies }) => {
   const currentMovie = movies[currentIndex];
 
   return (
-    <div 
-      className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden"
-      style={{
-        backgroundColor: '#e50914',
-        border: '5px solid #ffff00',
-        minHeight: '400px',
-        zIndex: 9999
-      }}
-    >
+    <div className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[80vh] xl:h-[90vh] overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
@@ -78,22 +70,6 @@ const HeroCarousel: React.FC<HeroCarouselProps> = ({ movies }) => {
         <div className="absolute inset-0 bg-gradient-to-t from-netflix-black via-transparent to-transparent" />
       </div>
 
-      {/* Debug Info */}
-      <div 
-        className="absolute top-4 left-4 z-30 bg-yellow-500 text-black p-4 rounded font-bold text-xl"
-        style={{
-          backgroundColor: '#ffff00',
-          color: '#000000',
-          fontSize: '24px',
-          fontWeight: 'bold',
-          padding: '20px',
-          border: '3px solid #000000'
-        }}
-      >
-        🚨 DEBUG: HeroCarousel IS RENDERING! 🚨<br/>
-        Movies: {movies.length}, Current: {currentIndex + 1}<br/>
-        Movie: {currentMovie.title || currentMovie.name}
-      </div>
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center">
