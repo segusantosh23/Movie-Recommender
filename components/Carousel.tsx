@@ -58,16 +58,16 @@ const Carousel: React.FC<CarouselProps> = ({ title, movies }) => {
   }
 
   return (
-    <section className="relative group">
-      <h2 className="text-2xl md:text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 border-l-4 border-blue-500 pl-4">{title}</h2>
+    <section className="relative group mb-8 lg:mb-12">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 border-l-4 border-blue-500 pl-3 sm:pl-4">{title}</h2>
       
       {!isAtStart && (
         <button
           onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/80 text-white p-2 sm:p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           aria-label="Scroll left"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
@@ -75,11 +75,11 @@ const Carousel: React.FC<CarouselProps> = ({ title, movies }) => {
 
       <div
         ref={scrollContainerRef}
-        className="flex overflow-x-auto space-x-4 md:space-x-6 pb-4 -mx-4 px-4 scrollbar-hide"
+        className="flex overflow-x-auto space-x-3 sm:space-x-4 md:space-x-6 pb-4 -mx-4 px-4 scrollbar-hide"
         style={{ scrollBehavior: 'smooth' }}
       >
         {movies.map(movie => (
-          <div key={movie.id} className="flex-shrink-0 w-40 sm:w-48">
+          <div key={movie.id} className="flex-shrink-0 w-32 xs:w-36 sm:w-40 md:w-44 lg:w-48 xl:w-52">
             <MovieCard movie={movie} />
           </div>
         ))}
@@ -88,10 +88,10 @@ const Carousel: React.FC<CarouselProps> = ({ title, movies }) => {
       {!isAtEnd && (
         <button
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/80 text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-black/50 hover:bg-black/80 text-white p-2 sm:p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           aria-label="Scroll right"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
         </button>
