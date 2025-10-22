@@ -4,7 +4,6 @@ import React, { createContext, ReactNode, useContext } from 'react';
 import { Movie, RatedMovie } from '../types';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { AuthContext } from './AuthContext';
-import { NotificationContext } from './NotificationContext';
 
 interface MovieListsContextType {
   likedMovies: Movie[];
@@ -26,7 +25,6 @@ interface MovieListsProviderProps {
 
 export const MovieListsProvider: React.FC<MovieListsProviderProps> = ({ children }) => {
   const authContext = useContext(AuthContext);
-  const notificationContext = useContext(NotificationContext);
   const userKey = authContext?.user?.username || 'guest';
 
   const [likedMovies, setLikedMovies] = useLocalStorage<Movie[]>(`cinesuggest_liked_${userKey}`, []);
@@ -37,24 +35,18 @@ export const MovieListsProvider: React.FC<MovieListsProviderProps> = ({ children
   const isOnWatchlist = (movieId: number) => watchlist.some(m => m.id === movieId);
 
   const toggleLike = (movie: Movie) => {
-    const title = movie.title || movie.name;
     if (isLiked(movie.id)) {
       setLikedMovies(prev => prev.filter(m => m.id !== movie.id));
-      notificationContext?.addNotification(`Removed "${title}" from liked movies.`);
     } else {
       setLikedMovies(prev => [...prev, movie]);
-      notificationContext?.addNotification(`Added "${title}" to liked movies!`);
     }
   };
 
   const toggleWatchlist = (movie: Movie) => {
-    const title = movie.title || movie.name;
     if (isOnWatchlist(movie.id)) {
       setWatchlist(prev => prev.filter(m => m.id !== movie.id));
-      notificationContext?.addNotification(`Removed "${title}" from your watchlist.`);
     } else {
       setWatchlist(prev => [...prev, movie]);
-      notificationContext?.addNotification(`Added "${title}" to your watchlist!`);
     }
   };
   
@@ -63,7 +55,6 @@ export const MovieListsProvider: React.FC<MovieListsProviderProps> = ({ children
   };
 
   const rateMovie = (movie: Movie, rating: number) => {
-    const title = movie.title || movie.name;
     setRatedMovies(prev => {
       const existingRatingIndex = prev.findIndex(r => r.movie.id === movie.id);
       if (existingRatingIndex > -1) {
@@ -76,7 +67,6 @@ export const MovieListsProvider: React.FC<MovieListsProviderProps> = ({ children
         return [...prev, { movie, rating }];
       }
     });
-    notificationContext?.addNotification(`You rated "${title}" ${rating}/10!`);
   };
 
   return (
